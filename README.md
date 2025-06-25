@@ -42,6 +42,11 @@ python-monorepo/
    pip install -r requirements-dev.txt
    ```
 
+   When you're done working on the project, you can deactivate the virtual environment:
+   ```bash
+   deactivate
+   ```
+
 3. **Install pre-commit hooks**
    ```bash
    pre-commit install
@@ -49,10 +54,54 @@ python-monorepo/
 
 ## Adding a New Project
 
-1. Create a new directory under `projects/`
-2. Set up a standard Python project structure
-3. Add a `pyproject.toml` for project-specific dependencies
-4. Document the project in its `README.md`
+Use the `create_project.py` script to create a new project with the standard structure:
+
+```bash
+./scripts/create_project.py project-name --description "Project description"
+```
+
+This will create a new directory under `projects/` with the following structure:
+
+```
+project-name/
+├── pyproject.toml
+├── README.md
+├── src/
+│   └── project_name/
+│       ├── __init__.py
+│       └── main.py
+└── tests/
+    ├── __init__.py
+    └── test_main.py
+```
+
+## Development Workflow
+
+1. **Install a project in development mode**:
+   ```bash
+   cd projects/project-name
+   pip install -e .
+   ```
+
+2. **Run tests**:
+   ```bash
+   # Run all tests
+   pytest -v
+
+   # Run tests with coverage
+   pytest --cov=src --cov-report=term-missing
+   ```
+
+3. **Code quality checks**:
+   ```bash
+   # Format code
+   black .
+   isort .
+
+   # Lint code
+   flake8 .
+   mypy .
+   ```
 
 ## Development Guidelines
 
@@ -65,10 +114,10 @@ python-monorepo/
 
 ## Tools Used
 
-- [Poetry](https://python-poetry.org/) - Dependency management
 - [Pytest](https://docs.pytest.org/) - Testing framework
 - [Black](https://black.readthedocs.io/) - Code formatting
 - [isort](https://pycqa.github.io/isort/) - Import sorting
 - [Flake8](https://flake8.pycqa.org/) - Linting
 - [Mypy](http://mypy-lang.org/) - Static type checking
 - [pre-commit](https://pre-commit.com/) - Git hooks
+- [GitHub Actions](https://github.com/features/actions) - CI/CD
