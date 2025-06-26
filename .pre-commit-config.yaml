@@ -45,10 +45,14 @@ repos:
         stages: [pre-commit]
 
 -   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.16.1
+    rev: v1.10.0
     hooks:
     -   id: mypy
-        additional_dependencies: [types-requests, types-python-dateutil]
-        args: [--ignore-missing-imports, --disallow-untyped-defs, --show-error-codes]
+        name: mypy (all projects)
+        args: [--config=mypy.ini, --namespace-packages, --explicit-package-bases, --ignore-missing-imports, --disallow-untyped-defs, --show-error-codes]
+        additional_dependencies: [types-requests, types-python-dateutil]  # Add any type stubs your projects need
+        types: [python]
+        files: ^projects/.*\.py$
+        exclude: '(/|^)(\.venv|venv|build|dist|__pycache__|.git|.mypy_cache|.pytest_cache|docs|examples|tests?)/'
         # Run mypy last
         stages: [pre-commit]
