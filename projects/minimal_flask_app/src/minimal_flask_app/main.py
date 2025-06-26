@@ -7,15 +7,23 @@ from flask import Flask, Response, jsonify
 app = Flask(__name__)
 
 
-@app.route("/")  # type: ignore[misc]
+@app.route("/")
 def index() -> str:
-    """Return a simple greeting."""
+    """Return a simple greeting.
+
+    Returns:
+        str: A simple HTML greeting.
+    """
     return "<p>Hello, World!</p>"
 
 
-@app.route("/health")  # type: ignore[misc]
+@app.route("/health")
 def health_check() -> Tuple[Response, int]:
-    """Health check endpoint."""
+    """Health check endpoint.
+
+    Returns:
+        Tuple[Response, int]: A JSON response with status and HTTP status code.
+    """
     return jsonify({"status": "healthy"}), 200
 
 
