@@ -1,7 +1,8 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from pizza_shop.order.order import Order, OrderStatus
 from pizza_shop.pizza.pizza import ExtraTopping, Pizza, PizzaSize
+from pizza_shop.simulation.time import sim_clock
 
 
 def test_order_creation() -> None:
@@ -37,6 +38,9 @@ def test_update_status() -> None:
     # Store initial timestamp
     initial_updated = order.updated_at
 
+    # Advance the simulation clock by 1 minute
+    sim_clock.add_time(timedelta(minutes=1))
+
     # Update status
     order.update_status(OrderStatus.PREPARING)
 
@@ -50,6 +54,9 @@ def test_update_status() -> None:
         order.updated_at > initial_updated
     ), "Updated timestamp should be after initial timestamp"
 
+    # Reset the clock for other tests
+    sim_clock.reset()
+
 
 def test_multiple_status_updates() -> None:
     """Test multiple status updates to verify timestamp updates."""
@@ -60,6 +67,9 @@ def test_multiple_status_updates() -> None:
     order.update_status(OrderStatus.PREPARING)
     first_update_time = order.updated_at
 
+    # Advance the simulation clock by 1 minute
+    sim_clock.add_time(timedelta(minutes=1))
+
     # Second update
     order.update_status(OrderStatus.READY)
 
@@ -68,6 +78,9 @@ def test_multiple_status_updates() -> None:
     assert (
         order.updated_at > first_update_time
     ), "Timestamp should be updated after second status change"
+
+    # Reset the clock for other tests
+    sim_clock.reset()
 
 
 def test_total_items() -> None:
@@ -109,3 +122,50 @@ def test_order_size() -> None:
 
     order.add_pizza(Pizza(pizza_type="Pepperoni", size=PizzaSize.MEDIUM))
     assert order.order_size == 2
+
+
+def test_time_since_created() -> None:
+    """Test the time_since_created property."""
+    # Setup
+    order = Order(name="Time Test")
+
+    # Advance time by 5 minutes
+    sim_clock.add_time(timedelta(minutes=5))
+
+    # Verify time_since_created is approximately 5 minutes
+    time_since_created = order.time_since_created
+    assert isinstance(time_since_created, timedelta)
+    assert abs(time_since_created.total_seconds() - 300) < 1.0  # 5 minutes in seconds
+
+    # Reset the clock for other tests
+    sim_clock.reset()
+
+
+def test_time_in_current_status() -> None:
+    """Test the time_in_current_status property."""
+    # Setup
+    order = Order(name="Status Time Test")
+
+    # Initial status is PENDING
+    # Advance time by 2 minutes
+    sim_clock.add_time(timedelta(minutes=2))
+
+    # Verify initial time in status (should be ~2 minutes)
+    time_in_status = order.time_in_current_status
+    assert abs(time_in_status.total_seconds() - 120) < 1.0
+
+    # Change status and verify reset
+    order.update_status(OrderStatus.PREPARING)
+    assert (
+        order.time_in_current_status < time_in_status
+    )  # Should be reset to a smaller value
+
+    # Advance time by 3 minutes
+    sim_clock.add_time(timedelta(minutes=3))
+
+    # Verify new time in status (should be ~3 minutes)
+    time_in_status = order.time_in_current_status
+    assert abs(time_in_status.total_seconds() - 180) < 1.0
+
+    # Reset the clock for other tests
+    sim_clock.reset()
